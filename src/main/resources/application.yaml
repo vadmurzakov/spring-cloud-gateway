@@ -1,0 +1,39 @@
+server:
+  port: 8080
+
+
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      enabled: true
+      routes:
+        - id: route-with-transform-request
+          uri: http://localhost:8081/
+          predicates:
+            - Method=POST
+            - Path=/api/v1/message
+          filters:
+            - name: ModifyRequestFilter
+              args:
+                inClass: com.github.vadmurzakov.app.entity.OldDto # ?????? ??? ??????
+                outClass: com.github.vadmurzakov.app.entity.NewDto # ????? ??? ??????
+                contentType: application/json # ????? content-type ??? ?????????????
+
+management:
+  server:
+    port: 8080
+  endpoints:
+    gateway:
+      enabled: false
+    web:
+      exposure:
+        include: info,health,metrics,prometheus
+
+logging:
+  level:
+    com.github.vadmurzakov.app: debug
+    org.springframework: info
+  pattern:
+    level: "[%mdc{traceId}] %p"
